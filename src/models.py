@@ -5,9 +5,9 @@ class SummaryByCategory(BaseModel):
     """
     Sub-model representing the breakdown of changes by category.
     """
-    modificaciones: str
-    adiciones: str
-    eliminaciones: str
+    modifications: List[str]
+    additions: List[str]
+    deletions: List[str]
 
 class ContractChangeOutput(BaseModel):
     """
