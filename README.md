@@ -1,53 +1,127 @@
-# Pipeline de Análisis de Contratos con IA
+# ![LegalMove Logo](./legalMove.png)
 
-Este proyecto implementa un pipeline automatizado para el procesamiento y auditoría de contratos legales utilizando visión artificial y agentes inteligentes.
+# ⚖️ LegalMove | Contract Intelligence Pipeline
 
-## 🛠️ Tecnologías Utilizadas
+![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-orange.svg)
+![Langfuse](https://img.shields.io/badge/Observability-Langfuse-green.svg)
+![Pydantic](https://img.shields.io/badge/Validation-Pydantic--V2-red.svg)
 
-- **Python 3.9+**: Lenguaje base del proyecto.
-- **OpenAI API (GPT-4o)**: Utilizado para visión multimodal y análisis semántico.
-- **Pydantic**: Para la definición de modelos de datos y validación de estructuras.
-- **python-dotenv**: Gestión de variables de entorno para seguridad.
-- **Pytest/Unittest**: Framework de pruebas unitarias con uso de Mocks.
+Este proyecto implementa un pipeline de agentes multimodales para la **auditoría y detección de modificaciones en contratos legales**. El sistema utiliza agentes especializados para comparar contratos originales contra sus enmiendas, extrayendo cambios a nivel de cláusula con validación estricta y trazabilidad completa.
 
-## 📋 Implementación y Funcionalidades
+---
 
-El sistema sigue un flujo modular dividido en tres etapas principales:
+## 🏗️ Arquitectura del Sistema
 
-1. **OCR Semántico**: Conversión de imágenes de contratos a texto plano manteniendo la estructura original (secciones, numeración y párrafos).
-2. **Mapeo Estructural**: Agente especializado que analiza y correlaciona las secciones entre un contrato original y su enmienda, creando un mapa de correspondencias independiente del contenido.
-3. **Auditoría Legal**: Agente de extracción que identifica adiciones, eliminaciones y modificaciones críticas, generando un output estructurado en formato JSON.
+El sistema sigue un diseño de **Agentes Especializados y Secuenciales**, donde la salida de cada etapa enriquece la siguiente.
 
-## ⚖️ Buenas Prácticas
+### Diagrama de Flujo y Orquestación
 
-- **Principio de Responsabilidad Única (SRP)**: Cada agente y módulo tiene una única función clara (Visión, Estructura, Extracción).
-- **Inyección de Dependencias**: Uso de cliente OpenAI configurado mediante variables de entorno.
-- **Manejo de Excepciones**: Implementación de bloques try-except para gestionar fallos de API y errores de archivo (FileNotFound).
-- **Salida Determinista**: Uso de `response_format={"type": "json_object"}` para garantizar JSONs válidos.
-- **Conventional Commits**: El proyecto sigue el estándar de mensajes de commit informativos y estructurados.
+```mermaid
+graph TD
+    A[Inicio: Menú Interactivo] --> B{Selección de Ejemplo}
+    B --> C[OCR Semántico: GPT-4o Vision]
+    C --> D[Agente 1: Contextualización Legal]
+    D --> E[Agente 2: Auditoría de Extracción]
+    E --> F[Capa de Validación: Pydantic]
+    F --> G[Langfuse: Registro de Trace]
+    G --> H[Fin: Salida Detallada en CLI]
 
-## 🧪 Pruebas Unitarias
-
-Se ha implementado una suite de pruebas para garantizar la confiabilidad del código:
-- Pruebas para el motor de visión (`tests/test_image_parser.py`).
-- Pruebas para agentes con interceptación de llamadas API mediante `unittest.mock`.
-
-Para ejecutar los tests:
-```bash
-pytest
+    subgraph "Agentes Especializados"
+    D -.->|Mapa Estructural| E
+    end
 ```
+
+---
+
+## 🧩 Responsabilidades por Componente
+
+| Módulo                               | Responsabilidad                                                                   | Tecnología    |
+| :----------------------------------- | :-------------------------------------------------------------------------------- | :------------ |
+| **`src/main.py`**                    | Orquestador principal, gestión de trazas en Langfuse y menú interactivo.          | Python        |
+| **`src/image_parser.py`**            | Extracción visual y semántica de texto desde imágenes/PDFs.                       | GPT-4o Vision |
+| **`src/agents/context_agent.py`**    | Analista Senior que mapea la estructura y propósito de las cláusulas.             | GPT-4o        |
+| **`src/agents/extraction_agent.py`** | Auditor Legal que realiza la comparación delta (mod/add/del) a nivel de cláusula. | GPT-4o        |
+| **`src/models.py`**                  | Definición de esquemas estrictos y lógica de validación de datos.                 | Pydantic V2   |
+
+---
+
+## 🕵️ Observabilidad Avanzada (Langfuse)
+
+El sistema integra **Langfuse** para proporcionar una trazabilidad completa de cada ejecución, permitiendo auditar el "pensamiento" de los agentes y monitorear costos.
+
+- **Trace Principal**: `contract-analysis-[tipo]`
+- **Generations**: Cada llamada a la IA registra:
+  - **Prompt + Completion**: Texto íntegro procesado.
+  - **Token Tracking**: Conteo de tokens de entrada, salida y totales.
+  - **Metadatos**: Modelo utilizado, versión del código y tipo de contrato.
+- **Latencia**: Medición automática del tiempo de respuesta por etapa.
+
+---
+
+## 📋 Funcionalidades Destacadas
+
+1. **Auditoría Delta Detallada**: A diferencia de resúmenes genéricos, el Agente 2 clasifica cambios en:
+   - **Modificaciones**: Cambios en términos, montos o plazos existentes.
+   - **Adiciones**: Cláusulas o párrafos nuevos.
+   - **Eliminaciones**: Contenido removido en la enmienda.
+2. **Validación Pydantic**: Garantizamos que la salida sea un objeto JSON estructurado que cumple con los tipos requeridos para producción.
+3. **Menú de Ejemplos**: Soporte integrado para múltiples industrias:
+   - 💻 Licencia de Software
+   - 💼 Servicios de Consultoría
+   - ☁️ Servicios SaaS
+
+---
 
 ## 🚀 Instalación y Uso
 
-1. **Configurar entorno**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-2. **Configurar API Key**:
-   - Copiar `.env.example` a `.env` y añadir tu `OPENAI_API_KEY`.
-3. **Ejecutar Pipeline**:
-   ```bash
-   python -m src.main
-   ```
+### 1. Requisitos Previos
+
+- Python 3.9+
+- API Key de OpenAI
+- Proyecto en Langfuse (Public/Secret/Host keys)
+
+### 2. Configuración
+
+```bash
+# Crear y activar venv
+python -m venv venv
+source venv/bin/activate
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Configurar variables de entorno
+cp .env.example .env
+# Edita .env con tus credenciales
+```
+
+### 3. Ejecución
+
+Inicia el pipeline con el menú interactivo:
+
+```bash
+python -m src.main
+```
+
+---
+
+## 📊 Estructura de Salida (JSON)
+
+El sistema entrega un reporte estructurado bajo el siguiente esquema:
+
+```json
+{
+  "sections_changed": ["Nombre de la Cláusula"],
+  "topics_touched": ["Tema Legal"],
+  "summary_of_the_change": {
+    "modificaciones": "Detalle de cambios en cláusulas existentes...",
+    "adiciones": "Nuevas cláusulas incorporadas...",
+    "eliminaciones": "Cláusulas que fueron removidas..."
+  }
+}
+```
+
+---
+
+_Desarrollado con ❤️ por LegalMove._

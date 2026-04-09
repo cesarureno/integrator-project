@@ -81,7 +81,10 @@ def main():
     image_amended_path = selection["amd"]
     contract_type = selection["name"]
 
-    print(f"\n🚀 Iniciando Pipeline: {selection['emoji']} {contract_type}...")
+    print(f"\n{'='*50}")
+    print(f"⚖️  LEGALMOVE | {contract_type.upper()}")
+    print(f"{'='*50}")
+    print(f"🚀 Iniciando Pipeline de Inteligencia Jurídica...")
     print("--------------------------------------------------")
 
     # Start main trace (in v3, a root span is the trace)
@@ -239,7 +242,8 @@ def main():
         
         # Flush traces to Langfuse
         langfuse.flush()
-        print("\n✨ Proceso completado con éxito. Datos enviados a Langfuse.")
+        print("\n✨ LegalMove | Análisis finalizado con éxito.")
+        print("📊 Los datos han sido sincronizados con Langfuse.")
         print("="*50 + "\n")
 
     except Exception as e:
