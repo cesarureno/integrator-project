@@ -46,8 +46,14 @@ def contextualize_contracts(original: str, amended: str) -> str:
             temperature=0,
         )
 
-        # 4. Extract and return the result
-        return response.choices[0].message.content.strip()
+        # 4. Extract and return the result and usage
+        content = response.choices[0].message.content.strip()
+        usage = {
+            "prompt_tokens": response.usage.prompt_tokens,
+            "completion_tokens": response.usage.completion_tokens,
+            "total_tokens": response.usage.total_tokens
+        }
+        return content, usage
 
     except Exception as e:
         raise RuntimeError(f"Error during contextualization: {str(e)}")

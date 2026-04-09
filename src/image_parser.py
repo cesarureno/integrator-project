@@ -61,12 +61,18 @@ def parse_contract_image(image_path: str) -> str:
                     ],
                 }
             ],
-            max_tokens=4096,
+            max_tokens=None,
             temperature=0.0,
         )
 
-        # Extract and return the content
-        return response.choices[0].message.content.strip()
+        # Extract and return the content and usage
+        content = response.choices[0].message.content.strip()
+        usage = {
+            "prompt_tokens": response.usage.prompt_tokens,
+            "completion_tokens": response.usage.completion_tokens,
+            "total_tokens": response.usage.total_tokens
+        }
+        return content, usage
 
     except Exception as e:
         # General error handling for API issues

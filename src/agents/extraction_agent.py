@@ -65,7 +65,14 @@ def extract_contract_changes(original: str, amended: str, context: str) -> dict:
         if not all(key in data for key in required_keys):
             raise ValueError(f"API response missing required keys. Found: {data.keys()}")
 
-        return data
+        # 5. Get usage metadata
+        usage = {
+            "prompt_tokens": response.usage.prompt_tokens,
+            "completion_tokens": response.usage.completion_tokens,
+            "total_tokens": response.usage.total_tokens
+        }
+
+        return data, usage
 
     except json.JSONDecodeError as e:
         raise RuntimeError(f"Error parsing JSON response from OpenAI: {str(e)}")

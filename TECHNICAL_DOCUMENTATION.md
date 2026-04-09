@@ -78,10 +78,11 @@ Cada ejecución genera un `trace` único llamado `contract-analysis`. Dentro de 
 *   **Outputs**: Resultados parciales, longitudes de texto y estructuras JSON.
 *   **Metadatos**: Información técnica que permite filtrar y agrupar ejecuciones.
 
-### 2. Ventajas para Debugging
-*   **Aislamiento de Errores**: Permite identificar si un fallo ocurrió en la fase de visión (OCR) o en la lógica de algún agente (LLM).
-*   **Optimización de Prompts**: Al ver el input exacto que se envió al modelo y su respuesta, podemos iterar sobre los prompts con datos reales del mundo real.
-*   **Monitoreo de Latencia y Costos**: Langfuse permite rastrear el tiempo de ejecución de cada agente y el consumo de tokens.
+### 2. Ventajas para Debugging y Auditoría
+- **Aislamiento de Errores**: Permite identificar si un fallo ocurrió en la fase de visión (OCR) o en la lógica de algún agente (LLM).
+- **Optimización de Prompts**: Al ver el input exacto que se envió al modelo y su respuesta, podemos iterar sobre los prompts con datos reales.
+- **Auditoría de Costos (Token Tracking)**: El sistema registra el uso de tokens (prompt, completion y total) en cada etapa. Esto permite calcular el costo exacto de procesamiento por contrato y optimizar el consumo.
+- **Métricas de Performance**: Registro automático de latencia y metadatos detallados (longitud de texto, preview de contenido) para monitorear la eficiencia y salud del pipeline.
 
 ### 3. Defensa Técnica
 "La inteligencia artificial en producción suele ser una 'caja negra'. Nuestra integración con Langfuse elimina este riesgo, proporcionando **observabilidad total**. Esto no solo facilita el mantenimiento preventivo, sino que permite implementar ciclos de mejora continua basados en datos reales de ejecución, garantizando que el sistema sea auditable y transparente."

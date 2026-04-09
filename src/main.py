@@ -35,35 +35,98 @@ def main():
 
     try:
         # Stage 1: OCR Original
-        span_orig = trace.start_span(
+        span_orig = trace.start_observation(
             name="parse_original_contract", 
-            input={
-                "path": image_original_path
+            as_type="generation",
+            input={"path": image_original_path}
+        )
+        original, usage_orig = parse_contract_image(image_original_path)
+        span_orig.update(
+            model="gpt-4o",
+            usage_details={
+                "input": usage_orig["prompt_tokens"],
+                "output": usage_orig["completion_tokens"],
+                "total": usage_orig["total_tokens"]
+            },
+            output={"text_length": len(original), "preview": original},
+            metadata={
+                "file_path": image_original_path, 
+                "stage": "OCR_Original",
+                "model": "gpt-4o",
+                "usage": usage_orig
             }
         )
-        original = parse_contract_image(image_original_path)
-        span_orig.update(output={"text_length": len(original), "preview": original[:100]})
         span_orig.end()
 
         # Stage 2: OCR Amended
-        span_amd = trace.start_span(name="parse_amendment_contract", input={"path": image_amended_path})
-        amended = parse_contract_image(image_amended_path)
-        span_amd.update(output={"text_length": len(amended), "preview": amended[:100]})
+        span_amd = trace.start_observation(
+            name="parse_amendment_contract", 
+            as_type="generation",
+            input={"path": image_amended_path}
+        )
+        amended, usage_amd = parse_contract_image(image_amended_path)
+        span_amd.update(
+            model="gpt-4o",
+            usage_details={
+                "input": usage_amd["prompt_tokens"],
+                "output": usage_amd["completion_tokens"],
+                "total": usage_amd["total_tokens"]
+            },
+            output={"text_length": len(amended), "preview": amended},
+            metadata={
+                "file_path": image_amended_path, 
+                "stage": "OCR_Amended",
+                "model": "gpt-4o",
+                "usage": usage_amd
+            }
+        )
         span_amd.end()
 
         # Stage 3: Contextualization
-        span_ctx = trace.start_span(
+        span_ctx = trace.start_observation(
             name="contextualization_agent", 
+            as_type="generation",
             input={"original_len": len(original), "amended_len": len(amended)}
         )
-        context = contextualize_contracts(original, amended)
-        span_ctx.update(output={"context": context})
+        context, usage_ctx = contextualize_contracts(original, amended)
+        span_ctx.update(
+            model="gpt-4o",
+            usage_details={
+                "input": usage_ctx["prompt_tokens"],
+                "output": usage_ctx["completion_tokens"],
+                "total": usage_ctx["total_tokens"]
+            },
+            output={"context_preview": context},
+            metadata={
+                "stage": "Contextualization",
+                "model": "gpt-4o",
+                "usage": usage_ctx
+            }
+        )
         span_ctx.end()
 
         # Stage 4: Extraction
-        span_ext = trace.start_span(name="extraction_agent", input={"context_len": len(context)})
-        result = extract_contract_changes(original, amended, context)
-        span_ext.update(output=result)
+        span_ext = trace.start_observation(
+            name="extraction_agent", 
+            as_type="generation",
+            input={"context_len": len(context)}
+        )
+        result, usage_ext = extract_contract_changes(original, amended, context)
+        span_ext.update(
+            model="gpt-4o",
+            usage_details={
+                "input": usage_ext["prompt_tokens"],
+                "output": usage_ext["completion_tokens"],
+                "total": usage_ext["total_tokens"]
+            },
+            output=result,
+            metadata={
+                "stage": "Extraction", 
+                "sections_count": len(result.get("sections_changed", [])),
+                "model": "gpt-4o",
+                "usage": usage_ext
+            }
+        )
         span_ext.end()
 
         # Stage 5: Validation
@@ -72,14 +135,30 @@ def main():
         print("\n--- JSON OUTPUT ---\n")
         print(validated.model_dump())
         
-        # Update main trace with the final result
+        # Calculate global usage
+        total_prompt = (usage_orig["prompt_tokens"] + usage_amd["prompt_tokens"] + 
+                        usage_ctx["prompt_tokens"] + usage_ext["prompt_tokens"])
+        total_completion = (usage_orig["completion_tokens"] + usage_amd["completion_tokens"] + 
+                            usage_ctx["completion_tokens"] + usage_ext["completion_tokens"])
+        total_tokens = (usage_orig["total_tokens"] + usage_amd["total_tokens"] + 
+                        usage_ctx["total_tokens"] + usage_ext["total_tokens"])
+
+        # Update main trace with the final result and global usage
         trace.update(
             name="contract-analysis",
             input={
                 "original_path": image_original_path,
                 "amended_path": image_amended_path
             },
-            output=validated.model_dump()
+            output=validated.model_dump(),
+            metadata={
+                "total_usage": {
+                    "prompt_tokens": total_prompt,
+                    "completion_tokens": total_completion,
+                    "total_tokens": total_tokens
+                },
+                "version": "1.0.0"
+            }
         )
         # End main trace
         trace.end()
