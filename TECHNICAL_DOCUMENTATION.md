@@ -42,7 +42,7 @@ El agente recibe los textos crudos ya procesados por el `image_parser`. Su salid
 Este agente (`src/agents/extraction_agent.py`) es el motor lógico final que identifica y clasifica los cambios de contenido entre los documentos.
 
 ### 1. ¿Qué hace este agente?
-Actúa como un Auditor Legal que busca adiciones, eliminaciones y modificaciones específicas en las cláusulas. Su salida es un **JSON determinista** que contiene las secciones afectadas, los temas tocados (topics) y un resumen ejecutivo del cambio.
+Actúa como un Auditor Legal que busca adiciones, eliminaciones y modificaciones específicas en las cláusulas. Su salida es un **JSON determinista** que contiene las secciones afectadas, los temas tocados (topics) y un resumen ejecutivo del cambio, **todo redactado en ESPAÑOL**.
 
 ### 2. ¿Por qué depende del Agente de Contextualización?
 Depender del mapa estructural previo permite que el Agente de Extracción:

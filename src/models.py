@@ -1,13 +1,21 @@
 from pydantic import BaseModel, ValidationError
 from typing import List
 
+class SummaryByCategory(BaseModel):
+    """
+    Sub-model representing the breakdown of changes by category.
+    """
+    modificaciones: str
+    adiciones: str
+    eliminaciones: str
+
 class ContractChangeOutput(BaseModel):
     """
     Pydantic model representing the structured output of contract changes.
     """
     sections_changed: List[str]
     topics_touched: List[str]
-    summary_of_the_change: str
+    summary_of_the_change: SummaryByCategory
 
 def validate_output(data: dict) -> ContractChangeOutput:
     """

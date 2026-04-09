@@ -20,19 +20,21 @@ def contextualize_contracts(original: str, amended: str) -> str:
 
     # 2. Define the System and User Prompts
     system_prompt = (
-        "You are a Senior Legal Analyst. Your task is to extract a structural map from two contracts. "
-        "Output MUST be extremely compact and concise, optimized for follow-on AI processing."
+        "Eres un Analista Legal Senior. Tu tarea es extraer un mapa estructural de dos contratos. "
+        "La salida DEBE ser extremadamente compacta y concisa, optimizada para el procesamiento posterior por IA. "
+        "Toda la respuesta debe estar en ESPAÑOL."
     )
 
     user_prompt = (
-        "Analyze these documents independently and build a structural map.\n\n"
+        "Analiza estos documentos de forma independiente y construye un mapa estructural.\n\n"
         f"ORIGINAL:\n{original}\n\n"
         f"AMENDED:\n{amended}\n\n"
-        "STRICT INSTRUCTIONS:\n"
-        "1. List sections for each document: [Ref] [Name]: [Purpose]\n"
-        "2. Purpose must be < 15 words and contain NO specific values/dates/amounts.\n"
-        "3. Map sections: [Orig Ref] -> [Amd Ref]\n"
-        "4. No conversational text or long headings.\n"
+        "INSTRUCCIONES ESTRICTAS:\n"
+        "1. Lista las secciones de cada documento: [Ref] [Nombre]: [Propósito]\n"
+        "2. El propósito debe tener menos de 15 palabras y NO contener valores/fechas/montos específicos.\n"
+        "3. Mapea las secciones: [Ref Original] -> [Ref Enmienda]\n"
+        "4. No incluyas texto conversacional ni encabezados largos.\n"
+        "5. TODO el contenido debe estar en ESPAÑOL."
     )
 
     try:
