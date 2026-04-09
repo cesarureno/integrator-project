@@ -5,46 +5,31 @@ from dotenv import load_dotenv
 # Ensure the src directory is in the path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src.chain import get_extraction_chain
+from src.image_parser import parse_contract_image
+from src.agents.contextualization_agent import contextualize_contracts
+from src.agents.extraction_agent import extract_contract_changes
 
 def main():
-    # Load environment variables
     load_dotenv()
 
-    # Check for API Key
     if not os.getenv("OPENAI_API_KEY"):
-        print("Error: OPENAI_API_KEY not found in environment.")
-        print("Please copy .env.example to .env and add your OpenAI API key.")
+        print("Error: OPENAI_API_KEY not found.")
         return
 
-    # Initialize the chain
-    print("--- Initializing LangChain ---")
-    chain = get_extraction_chain()
+    # Rutas a la imagenes de pruebas
+    image_original_path = "data/test_contracts/documento_1__original.jpg"
+    image_amended_path = "data/test_contracts/documento_1__enmienda.jpg"
 
-    # Sample text for extraction
-    sample_text = """
-    Apple Inc. is an American multinational technology company headquartered in Cupertino, California. 
-    It was founded by Steve Jobs, Steve Wozniak, and Ronald Wayne in 1976. 
-    The company is known for its iPhone, iPad, and Mac computers. 
-    Users generally love the sleek design and ecosystem integration of their products.
-    """
-
-    print(f"--- Processing Input Text ---\n{sample_text.strip()}")
-    
     try:
-        # Execute the chain
-        result = chain.invoke({"text": sample_text})
-        
-        # Display the validated Pydantic object
-        print("\n--- Extracted Data (Pydantic Model) ---")
-        print(f"Summary: {result.summary}")
-        print("\nEntities:")
-        for entity in result.entities:
-            print(f"- {entity.name} ({entity.type})")
-        
-        print(f"\nSentiment: {result.sentiment.sentiment} (Score: {result.sentiment.score})")
-        print(f"Keywords: {', '.join(result.sentiment.keywords)}")
+        original = parse_contract_image(image_original_path)
+        amended = parse_contract_image(image_amended_path)
 
+        context = contextualize_contracts(original, amended)
+
+        result = extract_contract_changes(original, amended, context)
+
+        print("\n--- OUTPUT ---\n")
+        print(result)
     except Exception as e:
         print(f"\nError during execution: {e}")
 
