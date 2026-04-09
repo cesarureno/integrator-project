@@ -1,27 +1,35 @@
-from src.models import ExtractionResult, SentimentAnalysis, Entity
+import pytest
+from src.models import validate_output, ContractChangeOutput
 
-def test_sentiment_analysis_validation():
-    # Valid data
-    data = {
-        "sentiment": "positive",
-        "score": 0.95,
-        "keywords": ["fast", "reliable"]
+def test_validate_output_success():
+    valid_data = {
+        "sections_changed": ["Pago", "Plazo"],
+        "topics_touched": ["Amount", "Duration"],
+        "summary_of_the_change": "Price increased and duration extended."
     }
-    sentiment = SentimentAnalysis(**data)
-    assert sentiment.sentiment == "positive"
-    assert sentiment.score == 0.95
+    result = validate_output(valid_data)
+    assert isinstance(result, ContractChangeOutput)
+    assert result.sections_changed == ["Pago", "Plazo"]
+    assert result.summary_of_the_change == "Price increased and duration extended."
 
-def test_extraction_result_validation():
-    data = {
-        "summary": "Test summary",
-        "entities": [{"name": "Google", "type": "Organization"}],
-        "sentiment": {
-            "sentiment": "neutral",
-            "score": 0.5,
-            "keywords": ["test"]
-        }
+def test_validate_output_missing_field():
+    invalid_data = {
+        "sections_changed": ["Pago"],
+        # "topics_touched" is missing
+        "summary_of_the_change": "Missing field test"
     }
-    result = ExtractionResult(**data)
-    assert result.summary == "Test summary"
-    assert len(result.entities) == 1
-    assert result.entities[0].name == "Google"
+    with pytest.raises(ValueError) as excinfo:
+        validate_output(invalid_data)
+    assert "topics_touched" in str(excinfo.value)
+    assert "Field required" in str(excinfo.value)
+
+def test_validate_output_wrong_type():
+    invalid_data = {
+        "sections_changed": "Not a list",  # Should be a list
+        "topics_touched": ["Type"],
+        "summary_of_the_change": "Wrong type test"
+    }
+    with pytest.raises(ValueError) as excinfo:
+        validate_output(invalid_data)
+    assert "sections_changed" in str(excinfo.value)
+    assert "Input should be a valid list" in str(excinfo.value)

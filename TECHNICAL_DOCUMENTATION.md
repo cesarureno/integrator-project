@@ -53,5 +53,17 @@ Depender del mapa estructural previo permite que el Agente de Extracción:
 ### 3. Validación con Pydantic (Futuro)
 Aunque el agente devuelve un JSON crudo, este se valida inmediatamente después del retorno mediante un esquema de Pydantic. Esto garantiza que cualquier anomalía en la respuesta de la IA (ej. campo faltante o formato incorrecto) sea detectada antes de impactar al usuario.
 
-### 4. Defensa Técnica
-"Nuestra arquitectura 'Chain-of-Agents' separa la comprensión visual, el análisis estructural y la auditoría de contenido. Esto no solo mejora la precisión, sino que permite una trazabilidad completa: podemos auditar en qué paso exacto ocurrió un error si la extracción no fuera perfecta, algo imposible con un enfoque monotónico de 'un solo prompt para todo'."
+## 8. Validación de Datos (Pydantic)
+
+Se ha implementado una capa de validación robusta (`src/models.py`) utilizando Pydantic para asegurar que la salida de los modelos de lenguaje sea determinista y consistente.
+
+### 1. ¿Por qué es importante Pydantic en este sistema?
+Los Modelos de Lenguaje (LLMs) son probabilísticos y, aunque se les pida JSON, pueden fallar en la estructura o en los tipos de datos. Pydantic actúa como un **contrato de interfaz** fuerte. Si el LLM comete un error (ej. olvida una coma o envía un número en lugar de una lista), Pydantic lo detecta inmediatamente, evitando que datos corruptos entren en la lógica de negocio.
+
+### 2. ¿Qué problema resuelve en producción?
+*   **Integridad de Datos**: Garantiza que `sections_changed` siempre sea una lista, permitiendo que el backend o frontend itere sobre ella sin riesgo de errores tipo `TypeError`.
+*   **Fail-Fast**: Ante una respuesta malformada, el sistema lanza una excepción controlada (`ValueError`) en lugar de fallar silenciosamente o causar comportamientos erráticos más adelante en el pipeline.
+*   **Documentación Viva**: El modelo de Pydantic sirve como la "única fuente de verdad" sobre el esquema de datos del proyecto.
+
+### 3. Defensa Técnica
+"Nuestra arquitectura no confía ciegamente en la IA. Utilizamos Pydantic para validar cada respuesta contra un esquema riguroso. Esto transforma una salida generativa en un objeto de datos tipado y confiable, cumpliendo con los estándares de robustez requeridos para software empresarial y auditoría legal."

@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from src.image_parser import parse_contract_image
 from src.agents.contextualization_agent import contextualize_contracts
 from src.agents.extraction_agent import extract_contract_changes
+from src.models import validate_output
 
 def main():
     load_dotenv()
@@ -28,8 +29,10 @@ def main():
 
         result = extract_contract_changes(original, amended, context)
 
-        print("\n--- OUTPUT ---\n")
-        print(result)
+        validated = validate_output(result)
+
+        print("\n--- JSON OUTPUT ---\n")
+        print(validated.model_dump())
     except Exception as e:
         print(f"\nError during execution: {e}")
 
