@@ -112,12 +112,17 @@ El sistema entrega un reporte estructurado bajo el siguiente esquema:
 
 ```json
 {
-  "sections_changed": ["Nombre de la Cláusula"],
-  "topics_touched": ["Tema Legal"],
+  "sections_changed": ["Otorgamiento de Licencia", "Pago", "Plazo"],
+  "topics_touched": ["Derechos de Uso", "Costos", "Duración"],
   "summary_of_the_change": {
-    "modificaciones": "Detalle de cambios en cláusulas existentes...",
-    "adiciones": "Nuevas cláusulas incorporadas...",
-    "eliminaciones": "Cláusulas que fueron removidas..."
+    "modifications": [
+      "En la cláusula 'Otorgamiento de Licencia', se cambió el alcance de 'fines internos' a 'operaciones de negocio'.",
+      "En la cláusula 'Pago', la tarifa anual aumentó de USD 12,000 a USD 15,000."
+    ],
+    "additions": [
+      "Se incorporó una nueva cláusula de 'Protección de Datos' con cumplimiento normativo."
+    ],
+    "deletions": []
   }
 }
 ```

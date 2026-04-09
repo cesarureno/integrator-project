@@ -85,9 +85,9 @@ Para garantizar que la salida de la IA sea apta para producción, utilizamos mod
 
 ```python
 class SummaryByCategory(BaseModel):
-    modificaciones: str
-    adiciones: str
-    eliminaciones: str
+    modifications: List[str]
+    additions: List[str]
+    deletions: List[str]
 
 class ContractChangeOutput(BaseModel):
     sections_changed: List[str]
@@ -95,7 +95,7 @@ class ContractChangeOutput(BaseModel):
     summary_of_the_change: SummaryByCategory
 ```
 
-Esta estructura obliga al LLM a separar los cambios, evitando resúmenes ambiguos y facilitando la visualización en dashboards.
+Esta estructura obliga al LLM a separar cada hallazgo como un elemento independiente en una lista, evitando resúmenes ambiguos y facilitando la visualización en dashboards.
 
 ---
 
