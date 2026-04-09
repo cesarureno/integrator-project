@@ -67,3 +67,21 @@ Los Modelos de Lenguaje (LLMs) son probabilísticos y, aunque se les pida JSON, 
 
 ### 3. Defensa Técnica
 "Nuestra arquitectura no confía ciegamente en la IA. Utilizamos Pydantic para validar cada respuesta contra un esquema riguroso. Esto transforma una salida generativa en un objeto de datos tipado y confiable, cumpliendo con los estándares de robustez requeridos para software empresarial y auditoría legal."
+
+## 9. Observabilidad y Trazabilidad (Langfuse)
+
+Se ha integrado **Langfuse** para proporcionar una visión clara y detallada de lo que sucede "bajo el capó" en cada ejecución del pipeline.
+
+### 1. ¿Cómo funciona la trazabilidad?
+Cada ejecución genera un `trace` único llamado `contract-analysis`. Dentro de este, se crean `spans` para cada etapa lógica (OCR, Contextualización, Extracción). Cada span registra:
+*   **Inputs**: Rutas de archivos o textos de entrada.
+*   **Outputs**: Resultados parciales, longitudes de texto y estructuras JSON.
+*   **Metadatos**: Información técnica que permite filtrar y agrupar ejecuciones.
+
+### 2. Ventajas para Debugging
+*   **Aislamiento de Errores**: Permite identificar si un fallo ocurrió en la fase de visión (OCR) o en la lógica de algún agente (LLM).
+*   **Optimización de Prompts**: Al ver el input exacto que se envió al modelo y su respuesta, podemos iterar sobre los prompts con datos reales del mundo real.
+*   **Monitoreo de Latencia y Costos**: Langfuse permite rastrear el tiempo de ejecución de cada agente y el consumo de tokens.
+
+### 3. Defensa Técnica
+"La inteligencia artificial en producción suele ser una 'caja negra'. Nuestra integración con Langfuse elimina este riesgo, proporcionando **observabilidad total**. Esto no solo facilita el mantenimiento preventivo, sino que permite implementar ciclos de mejora continua basados en datos reales de ejecución, garantizando que el sistema sea auditable y transparente."
